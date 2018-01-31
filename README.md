@@ -12,7 +12,8 @@ Replace adampaternostro with your public repo
 ```
 COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
 ```
-2. Run these in your directory
+2. Change the password in the tomcat-users.xml
+3. Run these in your directory
 ```
 docker build -t apachetomcatazure .
 docker login
