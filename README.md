@@ -32,3 +32,4 @@ az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinu
 ## Current Notes
 1. I'm working on the script to test if the website is up
 2. I need to implement SSH (see: https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image)
+3. Changing to a private Azure Container Registry
