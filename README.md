@@ -36,4 +36,4 @@ az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinu
 3. Changing to a private Azure Container Registry
 4. I need to load test this
 5. I need to change the WAR file so it sleeps for a long time (basically takes a long time to start up)
-
+6. It would be nice to reduce this image size
