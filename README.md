@@ -10,9 +10,7 @@ In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web A
 2. Download http://mirrors.advancedhosters.com/apache/tomcat/tomcat-9/v9.0.4/bin/apache-tomcat-9.0.4.tar.gz
 3. Download http://download.oracle.com/otn-pub/java/jdk/9.0.4+11/c2514751926b4512b076cc82f959763f/jdk-9.0.4_linux-x64_bin.tar.gz
 4. Replace your the WAR (sample.war) with your own and update the Dockerfile
-```
-COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
-```
+```COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war```
 5. Change the password in the tomcat-users.xml
 6. Run these in your directory (change to your image name and Docker repo / Azure Container Registry)
 ```
@@ -49,7 +47,7 @@ This project is based upon a discussion I had with a colleague who had similar i
 ## If you are using IIS
 If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap
 
-If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really shoudl be used for any Docker web app deployment.
+If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really should be used for any Docker web app deployment.
 
 
 ## Load Testing ("Good Docker image")
