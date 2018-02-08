@@ -79,3 +79,34 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-performance-view.png)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-throughput.png)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-http-errors.png)
+
+
+## Load Testing ("Bad Docker image")
+Results: 502 Errors!  This is what we wanted.  Yes, we wanted errors to show we actually have a problem when Tomcat is started, but the Java app is still warming up or unzipping the WAR file.
+
+Good Test (3 minutes simulated delay for Tomcat to warmup)
+- 5 users start, every 30 seconds add 5 users up to 5000 for 10 
+- 60 seconds after the test started, I changed the number of servers from 1 to 10 (autoscale takes too long 5 to 6 minutes)
+- It should take about 4 minutes for the new instances
+   - We do not want any 502 errors during this time
+   - We will have 40 users at 4 minutes which is fine for 1 server to handle 
+     Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
+     Minute 2:  060:15, 090:20,  (traffic should now be on all 10 servers) 
+                                 (tomcat warm up 1st minute)
+     Minute 3:  120:25, 150:30,  (tomcat warm up 2nd minute) 
+                                 (I would expect to start getting 502 errors around now)
+     Minute 4:  180:35, 210:40,  (tomcat warm up 3rd minute)
+     Minute 5:  240:45, 270:50,  
+     Minute 6:  300:55, 330:60,  (I started getting 502 errors... did it take this long to deploy my image?)
+     Minute 7:  360:65, 390:70, 
+     Minute 8:  420:75, 450:80, 
+     Minute 9:  480:85, 510:90,
+     Minute 10: 540:95, 600:100
+     
+- I would expect to get 502 errors around minute 2 to 3.  Instead I got them at minute 6.  I am currently looking into this.  This means either my hypothesis is wrong or it takes 3 minutes to download my image and allocate a machine.  When I deploy my site to Azure it does take around 3 minutes before I can hit the URL.  I am looking into this.
+
+
+![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-performance-all.png)
+![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-performance-view.png)
+![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-throughput.png)
+![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-http-errors.png)
