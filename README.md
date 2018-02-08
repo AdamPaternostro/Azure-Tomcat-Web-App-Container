@@ -1,25 +1,27 @@
 # Azure-Tomcat-Web-App-Container
 Creates a Docker container with Tomcat installed behind Apache which acts as a reverse proxy so Tomcat can be warmed up before being added to the Azure load balancer.  Solves the problems of web apps needing time to warm-up as well as locking of WAR files that can occur on Azure Window Web Apps.
 
-### Downloads
+### The problem
+In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web Apps has a shared file system in which your web code is deployed.  This creates a problem when running more than one web server and you deploy a WAR files.  The servers fight over who will get a lock to unzip the WAR file and you get issues. The other issue is that some Tomcat applications take 5+ minutes to warm up.  So you do not want web traffic hitting your site before it is ready to go.  
+
+
+### To build the Docker image
 1. Download this repository
 2. Download http://mirrors.advancedhosters.com/apache/tomcat/tomcat-9/v9.0.4/bin/apache-tomcat-9.0.4.tar.gz
 3. Download http://download.oracle.com/otn-pub/java/jdk/9.0.4+11/c2514751926b4512b076cc82f959763f/jdk-9.0.4_linux-x64_bin.tar.gz
-
-### To build the Docker image
-Replace adampaternostro with your public repo
-1. Replace your the WAR (sample.war) with your own and update the Dockerfile
+4. Replace your the WAR (sample.war) with your own and update the Dockerfile
 ```
 COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
 ```
-2. Change the password in the tomcat-users.xml
-3. Run these in your directory
+5. Change the password in the tomcat-users.xml
+6. Run these in your directory (change to your image name and Docker repo / Azure Container Registry)
 ```
 docker build -t apachetomcatazure .
 docker login
 docker tag apachetomcatazure adampaternostro/apachetomcatazure:v1
 docker push adampaternostro/apachetomcatazure:v1
 ```
+
 
 ### Deploy to Azure
 Run this in the Azure portal (create a Bash prompt). Replace "Adam" with your name.
@@ -43,10 +45,12 @@ az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinu
 
 This project is based upon a discussion I had with a colleague who had similar issues. He deserves credit and hit github can be found here: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
 
+
 ## If you are using IIS
 If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap
 
 If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really shoudl be used for any Docker web app deployment.
+
 
 ## Load Testing ("Good Docker image")
 Results: No 502 Errors!  This is what we wanted.
