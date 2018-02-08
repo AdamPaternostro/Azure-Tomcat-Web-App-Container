@@ -3,7 +3,8 @@
 # Start Apache (background)
 /usr/sbin/apache2 -k start
 
-# Pretent Tomcat is warming up
+# Pretend Tomcat is warming up
+# Apache is started (port 80) so Azure thinks we are ready for web traffic
 sleep 3m
 
 # Start Tomcat

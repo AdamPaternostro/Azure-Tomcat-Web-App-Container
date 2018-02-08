@@ -18,7 +18,7 @@ do
 done
 echo "Site ready"
 
-# Pretent Tomcat is warming up
+# Pretend Tomcat is warming up
 sleep 3m
 
 # Start Apache (foreground so the process does not end)
