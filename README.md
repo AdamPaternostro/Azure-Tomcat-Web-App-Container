@@ -36,13 +36,12 @@ az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --nam
 az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
 ```
 
-## Current Notes
-1. I'm working on the script to test if the website is up
-2. I need to implement SSH (see: https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image)
-3. Changing to a private Azure Container Registry
-4. I need to load test this
-5. I need to change the WAR file so it sleeps for a long time (basically takes a long time to start up)
-6. It would be nice to reduce this image size
+## Notes
+1. I need to implement SSH (see: https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image)
+2. Changing to a private Azure Container Registry
+3. It would be nice to reduce this image size (you can reduce the layer by getting rid of a lot of the RUN command and combining with the & character.  I like my code explicit when developing and then condense what makes sense and keeps it readable.
+
+This project is based upon a discussion I had with a colleague who had similar issues. He deserves credit and hit github can be found here: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
 
 ## If you are using IIS
 If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap
