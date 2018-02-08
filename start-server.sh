@@ -7,7 +7,7 @@
 echo "Site test"
 while true;
 do
-    result=`curl http://localhost/sample -k -s -f -o /dev/null && echo "UP" || echo "DOWN"`
+    result=`curl http://localhost:8080/sample -k -s -f -o /dev/null && echo "UP" || echo "DOWN"`
     if [ "$result" = "UP" ]
     then
         break
