@@ -20,11 +20,15 @@ docker login
 docker tag apachetomcatazure adampaternostro/apachetomcatazure:v1
 docker push adampaternostro/apachetomcatazure:v1
 ```
-You need to deploy either the good or bad image to Azure
-https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
 
 ### Deploy to Azure
 Run this in the Azure portal (create a Bash prompt). Replace "Adam" with your name.
+You need to deploy either the good or bad image to Azure.  
+There are 3 images:
+1. latest -> this is what you would do in production
+2. good -> this tests to ensure that the web node is not added to the Azure load balancer until Apache starts
+3. bad -> this simulates the problem I am trying to solve.  Tomcat not ready for action, but added to the load balancer.
+https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
 ```
 az group create --name AdamLinuxGroup --location "East US"
 az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
@@ -39,3 +43,8 @@ az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinu
 4. I need to load test this
 5. I need to change the WAR file so it sleeps for a long time (basically takes a long time to start up)
 6. It would be nice to reduce this image size
+
+## If you are using IIS
+If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap
+
+If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really shoudl be used for any Docker web app deployment.
