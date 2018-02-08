@@ -20,13 +20,15 @@ docker login
 docker tag apachetomcatazure adampaternostro/apachetomcatazure:v1
 docker push adampaternostro/apachetomcatazure:v1
 ```
+You need to deploy either the good or bad image to Azure
+https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
 
 ### Deploy to Azure
 Run this in the Azure portal (create a Bash prompt). Replace "Adam" with your name.
 ```
 az group create --name AdamLinuxGroup --location "East US"
 az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
-az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adampaternostro/apachetomcatazure:v1
+az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adampaternostro/apachetomcatazure:{good OR bad}
 az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
 ```
 
