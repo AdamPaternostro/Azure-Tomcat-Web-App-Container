@@ -82,7 +82,6 @@ RUN chmod +x /usr/local/custom-app/start-server.sh
 
 # Deploy custom application http://localhost:8080/sample which gets reversed proxyed to http://localhost/sample
 COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
-#COPY largewar.war /usr/local/apache-tomcat-9.0.4/webapps/largewar.war
 
 
 ########################################
@@ -131,7 +130,7 @@ ENTRYPOINT ["/usr/local/custom-app/start-server.sh"]
 
 # Unzip / rezip WAR
 # jar -xvf sample.war
-# jar -cvf largewar.war largewar
+# jar -cvf slowapp.war slowapp
 
 # Want to use another distribution of Linux
 # Create an Azure VM (e.g. CentOS).  Run the commands 1 by 1 in the VM and see if they work (adjust as necessary, use yum instead of apt-get)
