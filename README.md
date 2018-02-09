@@ -105,7 +105,7 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
      Minute 9:  480:85, 510:90,
      Minute 10: 540:95, 600:100
      
-- I would expect to get 502 errors around minute 2 to 3.  Instead I got them at minute 6.  I am currently looking into this.  This means either my hypothesis is wrong or it takes 3 minutes to download my image and allocate a machine.  When I deploy my site to Azure it does take around 3 minutes before I can hit the URL.  I am looking into this.
+- I would expect to get 502 errors around minute 2 to 3.  Instead I got them at minute 6.  I am currently looking into this.  This means either my hypothesis is wrong or it takes 3 minutes to download my image and allocate a machine.  When I deploy my site to Azure it does take around 3 minutes before I can hit the URL.  I am looking into this. As of right now I am thinking this is related to the fact that I am using Docker Hub for my images and pulling them (9 of them) during my scaling is a bottleneck.
 
 
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-performance-all.png)
