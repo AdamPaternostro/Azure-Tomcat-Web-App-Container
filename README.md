@@ -9,22 +9,21 @@ In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web A
 
 
 ### The solution
-- Use Azure Web Apps on Linux (this will be used to deploy a custom Docker image)
-- Create a a Docker image: 
+- Use Azure Web Apps on Linux (this will be used to deploy a custom Docker image).
+- Create a Docker image: 
   - Start Tomcat on port 8080.
-  - Tomcat can now unzip your WAR file since each container has its very own WAR file (no locking) .   
-  - Inside your Docker image:  Warm up Tomcat on port 8080 by hitting your site within the container
-  - Inside your Docker image: Start Apache on port 80 when Tomcat is ready.  Apache is acting as a reverse proxy to Tomcat (some people do not like Tomcat exposed directly anyway for security reasons).
-- Azure sees port 80 is ready to go, so Azure adds this instance to the Wep App load balancer. 
+  - Tomcat can now unzip your WAR file since each container has its very own WAR file (no locking).    
+  - Inside your Docker image:  Warm up Tomcat on port 8080 by hitting your site within the container.
+  - Inside your Docker image: Start Apache on port 80 when Tomcat is ready.  Apache is acting as a reverse proxy to Tomcat.
+- Azure sees port 80 is ready to go, so Azure adds this instance to the Wep App load balancer.
 
 
 ### About my Docker Image Labels
 I created 1 Docker image and Labeled it 3 different ways
 https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
 1. latest: This is the code you would use in production.  You need to test and configure this for your needs.
-2. good: This simulates a web app that takes 3 minutes to start, but I do not start Apache until after the 3 minutes.  This means we shoud not get any 502 errors.
-3. bad: This simulates the problem I am trying to solve.  Tomcat not ready for action, but added to the load balancer.
-
+2. good: This simulates a web app that takes 3 minutes to warm up, but does not start Apache until Tomcat is ready.
+3. bad: This simulates the problem I am trying to solve.  Tomcat not ready for action, but starts receiving traffic.
 
 
 ### To build the Docker image
@@ -36,6 +35,8 @@ https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
 COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
 ```
 5. Change the password in the tomcat-users.xml
+
+You could download the two above files within your Docker build process, but it just takes too long for quick debugging.
 
 
 ### To build the good and bad images
@@ -103,32 +104,32 @@ If you are using a Windows Web App and need to warm up your website (.NET, Java,
 If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really should be used for any Docker web app deployment.  I would suspect this issue will occur on-prem and other cloud vendors.
 
 
-## Load Testing ("Good Docker image")
+## Load Testing 
+
+### Backgroud
+- For both the "good and "bad" load tests, I waited for the first deployment to be up and running before testing.
+- I tested a single web server to see how many users a single server can handle.  The result was about 100 users before getting overload.  This is important since I ran the below test I started with 1 server and one minute into the test I told Azure to run 10 servers.  It takes Azure about 5 minutes to deploy my new image, so for the first 6 minutes of the test I only have 1 server. Also, my start up script sleeps for 3 minutes (simulating Tomcat warmup) which means for up to minute 9 just 1 server is handling all the traffic.  
+- I ran the load test for 10 minutes and also for 20 minutes.
+
+
+### "Good" Docker image
 Results: No 502 Errors!  This is what we wanted.
 
-For both the "good and "bad" load tests, I waited until the server was up before running the tests.
-I tested the site with up to 800 users with 10 instances running, so we should not overload the site with the below test.
-This also means each server can handle about 80 users at the same time.  
-In the below test we have up to 40 users on just 1 server.  I did not want to get errors just because I put too much load on just the single server before the other servers were ready.
-
-Good Test (3 minutes simulated delay for Tomcat to warmup)
-- 5 users start, every 30 seconds add 5 users up to 5000 for 10 
-- 60 seconds after the test started, I changed the number of servers from 1 to 10 (autoscale takes too long 5 to 6 minutes)
-- It should take about 4 minutes for the new instances
-   - We do not want any 502 errors during this time
-   - We will have 40 users at 4 minutes which is fine for 1 server to handle 
+Data:
+- 5 initial users, every 30 seconds add 5 users up to 5000 for 10 minutes
+- 60 seconds after the test started, I changed the number of servers from 1 to 10.
+- It should take about 4-5 minutes for the new instances
      - Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
-     - Minute 2:  060:15, 090:20,  (tomcat warm up 1st minute)
-     - Minute 3:  120:25, 150:30,  (tomcat warm up 2nd minute) 
-     - Minute 4:  180:35, 210:40,  (tomcat warm up 3rd minute)
-     - Minute 5:  240:45, 270:50,  (traffic should now be on all 10 servers)
-     - Minute 6:  300:55, 330:60, 
-     - Minute 7:  360:65, 390:70, 
-     - Minute 8:  420:75, 450:80, 
-     - Minute 9:  480:85, 510:90,
-     - Minute 10: 540:95, 600:100
-     
-- I would NOT expect to get 502 errors during the scaling process (minutes 2, 3 and 4)
+     - Minute 2:  060:15, 090:20,  (provision new servers time)
+     - Minute 3:  120:25, 150:30,  (provision new servers time)
+     - Minute 4:  180:35, 210:40,  (provision new servers time)
+     - Minute 5:  240:45, 270:50,  (provision new servers time)
+     - Minute 6:  300:55, 330:60,  (provision new servers time)
+     - Minute 7:  360:65, 390:70,  (tomcat warm up 1nd minute)  
+     - Minute 8:  420:75, 450:80,  (tomcat warm up 2nd minute)  
+     - Minute 9:  480:85, 510:90,  (tomcat warm up 3rd minute)
+     - Minute 10: 540:95, 600:100  (traffic should now be on all 10 servers)  
+- I would NOT expect to get 502 errors during minutes 2 through 9, the provisioning time and the simulated Tomcat warmup time.
 
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-performance-all.png)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-performance-view.png)
@@ -138,29 +139,24 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
 #### 20 Minute Test
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-throughput-20-minutes.png)
 
-## Load Testing ("Bad Docker image")
+### "Bad" Docker image
 Results: 502 Errors!  This is what we wanted.  Yes, we wanted errors to show we actually have a problem when Tomcat is started, but the Java app is still warming up or unzipping the WAR file.
 
-Good Test (3 minutes simulated delay for Tomcat to warmup)
-- 5 users start, every 30 seconds add 5 users up to 5000 for 10 
-- 60 seconds after the test started, I changed the number of servers from 1 to 10 (autoscale takes too long 5 to 6 minutes)
-- It should take about 4 minutes for the new instances
-   - We do not want any 502 errors during this time
-   - We will have 40 users at 4 minutes which is fine for 1 server to handle 
+Data:
+- 5 initial users, every 30 seconds add 5 users up to 5000 for 10 minutes
+- 60 seconds after the test started, I changed the number of servers from 1 to 10.
+- It should take about 4-5 minutes for the new instances
      - Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
-     - Minute 2:  060:15, 090:20,  (traffic should now be on all 10 servers) 
-                                   (tomcat warm up 1st minute)
-     - Minute 3:  120:25, 150:30,  (tomcat warm up 2nd minute) 
-                                   (I would expect to start getting 502 errors sometime from this point forward)
-     - Minute 4:  180:35, 210:40,  (tomcat warm up 3rd minute)
-     - Minute 5:  240:45, 270:50,  
-     - Minute 6:  300:55, 330:60,  (I started getting 502 errors... so it took a few minutes to spin up the containers)
-     - Minute 7:  360:65, 390:70, 
-     - Minute 8:  420:75, 450:80, 
-     - Minute 9:  480:85, 510:90,
-     - Minute 10: 540:95, 600:100
-     
-- I would expect to get 502 errors around sometime after minute 3.  The 502 errors started around minute 6 which means it took about 5 minutes to deploy the new containers.  When deploying the website the first time it does take about 5 minutes for the site to be available.  So, this seems reasonible.
+     - Minute 2:  060:15, 090:20,  (provision new servers time)
+     - Minute 3:  120:25, 150:30,  (provision new servers time)
+     - Minute 4:  180:35, 210:40,  (provision new servers time)
+     - Minute 5:  240:45, 270:50,  (provision new servers time)
+     - Minute 6:  300:55, 330:60,  (provision new servers time - I started getting 502 errors)
+     - Minute 7:  360:65, 390:70,  (tomcat warm up 1st minute) 
+     - Minute 8:  420:75, 450:80,  (tomcat warm up 2nd minute)
+     - Minute 9:  480:85, 510:90,  (tomcat warm up 3rd minute) 
+     - Minute 10: 540:95, 600:100  (eventually errors should stop occuring since we are all spun up)  
+- I would EXPECT to get 502 as soon as the new servers are provisioned, around minute 6.  As soon as the container is started Apache is started, but Tomcat is still warming up.  Azure added the new servers to the load balancer since port 80 (Apache) started accepting traffic.
 
 
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-performance-all.png)
@@ -172,3 +168,7 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-throughput-20-minutes.png)
 
 The reason I ran a 20 minute test is because the 10 minute test never showed the errors leveling off.  The 20 minute chart show no more errors after about minute 14 (the chart becomes level, meaning we are not longer getting additional errors).  This seems to prove the issue with Tomcat accepting traffic before being ready.
+
+
+## Summary
+As you can see from the above load tests we can start Tomcat in our container, let it warmup and when ready, start Apache, which singles to Azure the server is ready for traffic.  This solves the 502 errors during auto-scale operations and solves the locking of shared files.
