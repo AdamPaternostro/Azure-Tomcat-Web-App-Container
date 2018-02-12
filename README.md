@@ -9,7 +9,7 @@ In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web A
 
 
 ### The solution
-- Use Azure Web Apps on Linux (this will deploy your custom image)
+- Use Azure Web Apps on Linux (this will be used to deploy a custom Docker image)
 - Create a a Docker image: 
   - Start Tomcat on port 8080.
   - Tomcat can now unzip your WAR file since each container has its very own WAR file (no locking) .   
