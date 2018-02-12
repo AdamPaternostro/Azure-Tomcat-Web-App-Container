@@ -128,6 +128,8 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-throughput.png)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-http-errors.png)
 
+#### 20 Minute Test
+![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-throughput-20-minutes.png)
 
 ## Load Testing ("Bad Docker image")
 Results: 502 Errors!  This is what we wanted.  Yes, we wanted errors to show we actually have a problem when Tomcat is started, but the Java app is still warming up or unzipping the WAR file.
@@ -158,3 +160,6 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-performance-view.png)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-throughput.png)
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-http-errors.png)
+
+#### 20 Minute Test
+![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-throughput-20-minutes.png)
