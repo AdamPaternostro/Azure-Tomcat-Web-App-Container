@@ -39,7 +39,7 @@ Run this in an Azure Portal Bash prompt.  Replace "Adam" with your name.
 ```
 az group create --name AdamLinuxGroup --location "East US"
 az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
-az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adampaternostro/apachetomcatazure:{good OR bad}
+az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adampaternostro/apachetomcatazure:latest
 az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
 ```
 
@@ -64,15 +64,14 @@ Run this in an Azure Bash Prompt
 az group create --name AdamLinuxGroup --location "East US"
 az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
 az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adamlinuxreg.azurecr.io/apachetomcatazure:good
-az webapp config container set --name AdamLinuxWebApp --resource-group AdamLinuxGroup --docker-custom-image-name adamlinuxreg.azurecr.io/apachetomcatazure:good --docker-registry-server-url https://adamlinuxreg.azurecr.io --docker-registry-server-user adamlinuxreg --docker-registry-server-password <<<<PASSWORD>>>>
+az webapp config container set --name AdamLinuxWebApp --resource-group AdamLinuxGroup --docker-custom-image-name adamlinuxreg.azurecr.io/apachetomcatazure:latest --docker-registry-server-url https://adamlinuxreg.azurecr.io --docker-registry-server-user adamlinuxreg --docker-registry-server-password <<<<PASSWORD FROM ABOVE>>>>
 az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
 ```
 
 
 ## Notes
 1. I need to implement SSH (see: https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image)
-2. Changing to a private Azure Container Registry
-3. It would be nice to reduce this image size (you can reduce the layer by getting rid of a lot of the RUN command and combining with the & character.  I like my code explicit when developing and then condense what makes sense and keeps it readable.
+2. It would be nice to reduce this image size (you can reduce the layer by getting rid of a lot of the RUN command and combining with the & character.  I like my code explicit when developing and then condense what makes sense and keeps it readable.
 
 This project is based upon a discussion I had with a colleague who had similar issues. He deserves credit and hit github can be found here: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
 
