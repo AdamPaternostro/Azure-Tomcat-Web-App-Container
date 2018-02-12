@@ -18,12 +18,12 @@ In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web A
 - Azure sees port 80 is ready to go, so Azure adds this instance to the Wep App load balancer.
 
 
-### About my Docker Image Labels
-I created 1 Docker image and Labeled it 3 different ways
+### The Docker Image labels
+The public repository of my image has 3 labels which are descibed below
 https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
-1. latest: This is the code you would use in production.  You need to test and configure this for your needs.
-2. good: This simulates a web app that takes 3 minutes to warm up, but does not start Apache until Tomcat is ready.
-3. bad: This simulates the problem I am trying to solve.  Tomcat not ready for action, but starts receiving traffic.
+1. **latest**: This is the code you would use in production.  You need to test and configure this for your needs.
+2. **good**: This simulates a web app that takes 3 minutes to warm up, but does not start Apache until Tomcat is ready.
+3. **bad**: This simulates the problem I am trying to solve.  Tomcat not ready for action, but starts receiving traffic.
 
 
 ### To build the Docker image
@@ -36,7 +36,7 @@ COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
 ```
 5. Change the password in the tomcat-users.xml
 
-You could download the two above files within your Docker build process, but it just takes too long for quick debugging.
+You could download the two above files within your Docker build process, but it made my rapid iterations go not so rapid.  Feel free to adjust.
 
 
 ### To build the good and bad images
@@ -86,12 +86,6 @@ az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinu
 ```
 
 
-## If you are using IIS
-If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap
-
-If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really should be used for any Docker web app deployment.  I would suspect this issue will occur on-prem and other cloud vendors.
-
-
 ## Load Testing 
 
 ### Backgroud
@@ -107,15 +101,15 @@ Data:
 - 5 initial users, every 30 seconds add 5 users up to 5000 for 10 minutes
 - 60 seconds after the test started, I changed the number of servers from 1 to 10.
 - It should take about 4-5 minutes for the new instances
-     - Minute 1:  000:05, 030:10  (scale to 10 instances at the end of minute 1)
-     - Minute 2:  060:15, 090:20  (provision new servers time)
-     - Minute 3:  120:25, 150:30  (provision new servers time)
-     - Minute 4:  180:35, 210:40  (provision new servers time)
-     - Minute 5:  240:45, 270:50  (provision new servers time)
-     - Minute 6:  300:55, 330:60  (provision new servers time)
-     - Minute 7:  360:65, 390:70  (tomcat warm up 1nd minute)  
-     - Minute 8:  420:75, 450:80  (tomcat warm up 2nd minute)  
-     - Minute 9:  480:85, 510:90  (tomcat warm up 3rd minute)
+     - Minute 1:  000:05, 030:10   (scale to 10 instances at the end of minute 1)
+     - Minute 2:  060:15, 090:20   (provision new servers time)
+     - Minute 3:  120:25, 150:30   (provision new servers time)
+     - Minute 4:  180:35, 210:40   (provision new servers time)
+     - Minute 5:  240:45, 270:50   (provision new servers time)
+     - Minute 6:  300:55, 330:60   (provision new servers time)
+     - Minute 7:  360:65, 390:70   (tomcat warm up 1nd minute)  
+     - Minute 8:  420:75, 450:80   (tomcat warm up 2nd minute)  
+     - Minute 9:  480:85, 510:90   (tomcat warm up 3rd minute)
      - Minute 10: 540:95, 600:100  (traffic should now be on all 10 servers)
 - I would NOT expect to get 502 errors during minutes 2 through 9, the provisioning time and the simulated Tomcat warmup time.
 
@@ -134,15 +128,15 @@ Data:
 - 5 initial users, every 30 seconds add 5 users up to 5000 for 10 minutes
 - 60 seconds after the test started, I changed the number of servers from 1 to 10.
 - It should take about 4-5 minutes for the new instances
-     - Minute 1:  000:05, 030:10  (scale to 10 instances at the end of minute 1)
-     - Minute 2:  060:15, 090:20  (provision new servers time)
-     - Minute 3:  120:25, 150:30  (provision new servers time)
-     - Minute 4:  180:35, 210:40  (provision new servers time)
-     - Minute 5:  240:45, 270:50  (provision new servers time)
-     - Minute 6:  300:55, 330:60  (provision new servers time - I started getting 502 errors)
-     - Minute 7:  360:65, 390:70  (tomcat warm up 1st minute) 
-     - Minute 8:  420:75, 450:80  (tomcat warm up 2nd minute)
-     - Minute 9:  480:85, 510:90  (tomcat warm up 3rd minute)
+     - Minute 1:  000:05, 030:10   (scale to 10 instances at the end of minute 1)
+     - Minute 2:  060:15, 090:20   (provision new servers time)
+     - Minute 3:  120:25, 150:30   (provision new servers time)
+     - Minute 4:  180:35, 210:40   (provision new servers time)
+     - Minute 5:  240:45, 270:50   (provision new servers time)
+     - Minute 6:  300:55, 330:60   (provision new servers time - I started getting 502 errors)
+     - Minute 7:  360:65, 390:70   (tomcat warm up 1st minute) 
+     - Minute 8:  420:75, 450:80   (tomcat warm up 2nd minute)
+     - Minute 9:  480:85, 510:90   (tomcat warm up 3rd minute)
      - Minute 10: 540:95, 600:100  (eventually errors should stop occuring since we are all spun up)  
 - I would EXPECT to get 502 as soon as the new servers are provisioned, around minute 6.  As soon as the container is started Apache is started, but Tomcat is still warming up.  Azure added the new servers to the load balancer since port 80 (Apache) started accepting traffic.
 
@@ -167,6 +161,7 @@ docker rm $(docker ps -aq)
 ```
 4. This project is based upon a discussion I had with a colleague who had similar issues. Please check out his Github for a Wildfly example: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
 5. Tomcat has two flags: antiJARLocking and antiJARLocking.  These do not seem to solve this particular problem through and were attempting as a solution.
+6. If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap.  If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really should be used for any Docker web app deployment.  I would suspect this issue will occur on-prem and other cloud vendors.
 
 
 ## Summary
