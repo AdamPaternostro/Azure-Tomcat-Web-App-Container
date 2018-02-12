@@ -80,7 +80,9 @@ RUN mkdir /usr/local/custom-app
 COPY start-server.sh /usr/local/custom-app/start-server.sh 
 RUN chmod +x /usr/local/custom-app/start-server.sh 
 
+
 # Deploy custom application http://localhost:8080/sample which gets reversed proxyed to http://localhost/sample
+# You want this near the end of the Dockerfile so we do not have to rebuild the other layers
 COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
 
 
@@ -88,76 +90,3 @@ COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
 # Entry point of container (startup script that starts tomcat, checks site, then starts apache)
 ########################################
 ENTRYPOINT ["/usr/local/custom-app/start-server.sh"]
-
-
-########################################
-# Notes
-########################################
-# Build this file:                       docker build -t apachetomcatazure .
-# Start container (locally):             docker run -p 80:80 apachetomcatazure
-
-# For Docker Hub, see Azure Container Registry below
-# To upload:                             docker login
-# Tag:                                   docker tag apachetomcatazure adampaternostro/apachetomcatazure:v1
-# Push:                                  docker push adampaternostro/apachetomcatazure:v1
-# Start container (prod):                docker run -p 80:80 adampaternostro/apachetomcatazure:v1
-
-# Deploy to Azure (Using Docker Hub)
-# https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image
-# az group create --name AdamLinuxGroup --location "East US"
-# az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
-# az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adampaternostro/apachetomcatazure:v1
-# az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
-
-# Deploy to Azure (Using ACR)
-########### Run these in Azure Bash Prompt ########### 
-# az group create --name AdamLinux --location "East US"
-# az acr create --name adamlinuxreg --resource-group AdamLinux --sku Basic --admin-enabled true
-# az acr credential show --name adamlinuxreg
-########### Run these on local machine ########### You need to build the Docker image in the good and bad states
-# docker login adamlinuxreg.azurecr.io --username adamlinuxreg
-# docker tag adampaternostro/apachetomcatazure:latest adamlinuxreg.azurecr.io/apachetomcatazure:latest 
-# docker tag adampaternostro/apachetomcatazure:good   adamlinuxreg.azurecr.io/apachetomcatazure:good
-# docker tag adampaternostro/apachetomcatazure:bad    adamlinuxreg.azurecr.io/apachetomcatazure:bad
-# docker push adamlinuxreg.azurecr.io/apachetomcatazure:latest 
-# docker push adamlinuxreg.azurecr.io/apachetomcatazure:good 
-# docker push adamlinuxreg.azurecr.io/apachetomcatazure:bad 
-########### Run these in Azure Bash Prompt ########### 
-# az acr repository list -n adamlinuxreg
-# az group create --name AdamLinuxGroup --location "East US"
-# az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
-# az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adamlinuxreg.azurecr.io/apachetomcatazure:good
-# az webapp config container set --name AdamLinuxWebApp --resource-group AdamLinuxGroup --docker-custom-image-name adamlinuxreg.azurecr.io/apachetomcatazure:good --docker-registry-server-url https://adamlinuxreg.azurecr.io --docker-registry-server-user adamlinuxreg --docker-registry-server-password ERD2fKXK813RtPWSBePz+v/mllpFVs+W
-# az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
-
-
-# To debug the container (commment out the ENTRYPOINT and run any of the below)
-# Start container (debug):               docker run -it apachetomcatazure 
-# Run Tomcat in foreground:              docker run -p 8080:8080 apachetomcatazure ./usr/local/apache-tomcat-9.0.4/bin/catalina.sh run
-# Run Apahe in forground:                docker run -p 80:80 apachetomcatazure ./usr/sbin/apache2ctl -D FOREGROUND
-# Start Tomcat (manually):               /usr/local/apache-tomcat-9.0.4/bin/startup.sh start
-# Start Apache (background):             /usr/sbin/apache2 -k start
-# Start Apache (foreground):             /usr/sbin/apache2 -k start -DFOREGROUND
-
-# Docker Clean-up
-# Stop all running containers:           docker stop $(docker ps -aq)
-# Remove all containers:                 docker rm $(docker ps -aq)
-# Delete all images:                     docker rmi $(docker images -q)
-
-# NOTES:
-# You could install curl and download each item.  This takes time and slows down your Docker debug process.
-# To use curl replace the COPY command with below download commands
-# RUN curl -o -O /usr/local/downloadtemp/apache-tomcat-9.0.4.tar.gz http://mirrors.advancedhosters.com/apache/tomcat/tomcat-9/v9.0.4/bin/apache-tomcat-9.0.4.tar.gz
-# RUN curl -o -O /usr/local/downloadtemp/jdk-9.0.4.tar.gz http://download.oracle.com/otn-pub/java/jdk/9.0.4+11/c2514751926b4512b076cc82f959763f/jdk-9.0.4_linux-x64_bin.tar.gz
-
-# Unzip / rezip WAR
-# jar -xvf sample.war
-# jar -cvf slowapp.war slowapp
-
-# Want to use another distribution of Linux
-# Create an Azure VM (e.g. CentOS).  Run the commands 1 by 1 in the VM and see if they work (adjust as necessary, use yum instead of apt-get)
-# Check the paths of everything
-# Once the get the VM working, update this Dockerfile with your steps
-
-# Also, slimming down this container would be a good thing.
-# I tried Alpine, but ran into just lots of small issues with Java and such (will try again)
