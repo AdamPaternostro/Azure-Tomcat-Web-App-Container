@@ -18,7 +18,7 @@ In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web A
 - Azure sees port 80 is ready to go, so Azure adds this instance to the Wep App load balancer. 
 
 
-### Image Labels
+### About my Docker Image Labels
 I created 1 Docker image and Labeled it 3 different ways
 https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
 1. latest: This is the code you would use in production.  You need to test and configure this for your needs.
