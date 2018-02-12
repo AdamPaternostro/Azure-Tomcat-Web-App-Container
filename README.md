@@ -1,10 +1,22 @@
 # Azure-Tomcat-Web-App-Container
-Creates a Docker container with Tomcat installed behind Apache which acts as a reverse proxy so Tomcat can be warmed up before being added to the Azure load balancer.  Solves the problems of web apps needing time to warm-up as well as locking of WAR files that can occur on Azure Window Web Apps.
+Creates a Docker container with Tomcat installed behind Apache which acts as a reverse proxy so Tomcat can be warmed up before being added to the Azure load balancer.  Solves the problems of web apps needing time to warm-up as well as locking of WAR files that can occur on Azure Window Web Apps.  This apporach can be used for solving not just Tomcat, but .NET apps, Node.js, etc. so it worth understanding.
+
 
 ### The problem
 In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web Apps has a shared file system in which your web code is deployed.  This creates a problem when running more than one web server and you deploy a WAR files.  The servers fight over who will get a lock to unzip the WAR file and you get issues. The other issue is that some Tomcat applications take 5+ minutes to warm up.  So you do not want web traffic hitting your site before it is ready to go.  
 
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/TomcatOnAzure.png)
+
+
+### The solution
+1. Use Web Apps on Linux using a Docker container for your Tomcat App
+2. Start Tomcat on port 8080.
+3. Tomcat can now unzip your WAR file since each container has its very own WAR file (no locking)
+4. Start sending requests to Tomcat on port 8080 to warm-up your application
+5. When your application is ready start Apache on port 80
+6. Apache is acting as a reverse proxy to Tomcat (some people do not like Tomcat exposed directly anyway for security reasons).
+7. Azure sees port 80 is ready to go, so Azure adds this instance to the Wep App load balancer. 
+
 
 ### Image Labels
 I created 1 Docker image and Labeled it 3 different ways
