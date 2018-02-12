@@ -163,3 +163,5 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
 
 #### 20 Minute Test
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-throughput-20-minutes.png)
+
+The reason I ran a 20 minute test is because the 10 minute test never showed the errors leveling off.  The 20 minute chart show no more errors after about minute 14 (the chart becomes level, meaning we are not longer getting additional errors).  This seems to prove the issue with Tomcat accepting traffic before being ready.
