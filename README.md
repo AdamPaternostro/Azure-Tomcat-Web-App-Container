@@ -4,12 +4,13 @@ Creates a Docker container with Tomcat installed behind Apache which acts as a r
 ### The problem
 In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web Apps has a shared file system in which your web code is deployed.  This creates a problem when running more than one web server and you deploy a WAR files.  The servers fight over who will get a lock to unzip the WAR file and you get issues. The other issue is that some Tomcat applications take 5+ minutes to warm up.  So you do not want web traffic hitting your site before it is ready to go.  
 
-### I have one image with 3 labels for testing
-There are 3 images:
-1. latest -> this is what you would do in production
-2. good -> this tests to ensure that the web node is not added to the Azure load balancer until Apache starts
-3. bad -> this simulates the problem I am trying to solve.  Tomcat not ready for action, but added to the load balancer.
+### Image Labels
+I created 1 Docker image and Labeled it 3 different ways
 https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
+1. latest: This is the code you would use in production.  You need to test and configure this for your needs.
+2. good: This simulates a web app that takes 3 minutes to start, but I do not start Apache until after the 3 minutes.  This means we shoud not get any 502 errors.
+3. bad: This simulates the problem I am trying to solve.  Tomcat not ready for action, but added to the load balancer.
+
 
 
 ### To build the Docker image
