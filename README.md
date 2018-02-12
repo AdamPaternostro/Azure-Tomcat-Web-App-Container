@@ -144,16 +144,16 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
      - Minute 2:  060:15, 090:20,  (traffic should now be on all 10 servers) 
                                    (tomcat warm up 1st minute)
      - Minute 3:  120:25, 150:30,  (tomcat warm up 2nd minute) 
-                                   (I would expect to start getting 502 errors around now)
+                                   (I would expect to start getting 502 errors sometime from this point forward)
      - Minute 4:  180:35, 210:40,  (tomcat warm up 3rd minute)
      - Minute 5:  240:45, 270:50,  
-     - Minute 6:  300:55, 330:60,  (I started getting 502 errors... did it take this long to deploy my image?)
+     - Minute 6:  300:55, 330:60,  (I started getting 502 errors... so it took a few minutes to spin up the containers)
      - Minute 7:  360:65, 390:70, 
      - Minute 8:  420:75, 450:80, 
      - Minute 9:  480:85, 510:90,
      - Minute 10: 540:95, 600:100
      
-- I would expect to get 502 errors around minute 2 to 3.  Instead I got them at minute 6.  I am currently looking into this.  This means either my hypothesis is wrong or it takes 3 minutes to download my image and allocate a machine.  When I deploy my site to Azure it does take around 3 minutes before I can hit the URL.  I am looking into this. As of right now I am thinking this is related to the fact that I am using Docker Hub for my images and pulling them (9 of them) during my scaling is a bottleneck.
+- I would expect to get 502 errors around sometime after minute 3.  The 502 errors started around minute 6 which means it took about 5 minutes to deploy the new containers.  When deploying the website the first time it does take about 5 minutes for the site to be available.  So, this seems reasonible.
 
 
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-performance-all.png)
