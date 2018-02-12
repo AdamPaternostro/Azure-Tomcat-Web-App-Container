@@ -86,18 +86,6 @@ az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinu
 ```
 
 
-## Notes
-1. I need to implement SSH (see: https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image)
-2. It would be nice to reduce this image size (you can reduce the layer by getting rid of a lot of the RUN command and combining with the & character.  I like my code explicit when developing and then condense what makes sense and keeps it readable.
-3. You should put some code in the start-server.sh script to handle interrupts.  Right now when you run the Docker image locally it is hard to kill.  I have to run:
-```
-docker stop $(docker ps -aq)
-docker rm $(docker ps -aq)
-```
-
-This project is based upon a discussion I had with a colleague who had similar issues. He deserves credit and hit github can be found here: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
-
-
 ## If you are using IIS
 If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap
 
@@ -119,16 +107,16 @@ Data:
 - 5 initial users, every 30 seconds add 5 users up to 5000 for 10 minutes
 - 60 seconds after the test started, I changed the number of servers from 1 to 10.
 - It should take about 4-5 minutes for the new instances
-     - Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
-     - Minute 2:  060:15, 090:20,  (provision new servers time)
-     - Minute 3:  120:25, 150:30,  (provision new servers time)
-     - Minute 4:  180:35, 210:40,  (provision new servers time)
-     - Minute 5:  240:45, 270:50,  (provision new servers time)
-     - Minute 6:  300:55, 330:60,  (provision new servers time)
-     - Minute 7:  360:65, 390:70,  (tomcat warm up 1nd minute)  
-     - Minute 8:  420:75, 450:80,  (tomcat warm up 2nd minute)  
-     - Minute 9:  480:85, 510:90,  (tomcat warm up 3rd minute)
-     - Minute 10: 540:95, 600:100  (traffic should now be on all 10 servers)  
+     - Minute 1:  000:05, 030:10  (scale to 10 instances at the end of minute 1)
+     - Minute 2:  060:15, 090:20  (provision new servers time)
+     - Minute 3:  120:25, 150:30  (provision new servers time)
+     - Minute 4:  180:35, 210:40  (provision new servers time)
+     - Minute 5:  240:45, 270:50  (provision new servers time)
+     - Minute 6:  300:55, 330:60  (provision new servers time)
+     - Minute 7:  360:65, 390:70  (tomcat warm up 1nd minute)  
+     - Minute 8:  420:75, 450:80  (tomcat warm up 2nd minute)  
+     - Minute 9:  480:85, 510:90  (tomcat warm up 3rd minute)
+     - Minute 10: 540:95, 600:100  (traffic should now be on all 10 servers)
 - I would NOT expect to get 502 errors during minutes 2 through 9, the provisioning time and the simulated Tomcat warmup time.
 
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/good-performance-all.png)
@@ -146,15 +134,15 @@ Data:
 - 5 initial users, every 30 seconds add 5 users up to 5000 for 10 minutes
 - 60 seconds after the test started, I changed the number of servers from 1 to 10.
 - It should take about 4-5 minutes for the new instances
-     - Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
-     - Minute 2:  060:15, 090:20,  (provision new servers time)
-     - Minute 3:  120:25, 150:30,  (provision new servers time)
-     - Minute 4:  180:35, 210:40,  (provision new servers time)
-     - Minute 5:  240:45, 270:50,  (provision new servers time)
-     - Minute 6:  300:55, 330:60,  (provision new servers time - I started getting 502 errors)
-     - Minute 7:  360:65, 390:70,  (tomcat warm up 1st minute) 
-     - Minute 8:  420:75, 450:80,  (tomcat warm up 2nd minute)
-     - Minute 9:  480:85, 510:90,  (tomcat warm up 3rd minute) 
+     - Minute 1:  000:05, 030:10  (scale to 10 instances at the end of minute 1)
+     - Minute 2:  060:15, 090:20  (provision new servers time)
+     - Minute 3:  120:25, 150:30  (provision new servers time)
+     - Minute 4:  180:35, 210:40  (provision new servers time)
+     - Minute 5:  240:45, 270:50  (provision new servers time)
+     - Minute 6:  300:55, 330:60  (provision new servers time - I started getting 502 errors)
+     - Minute 7:  360:65, 390:70  (tomcat warm up 1st minute) 
+     - Minute 8:  420:75, 450:80  (tomcat warm up 2nd minute)
+     - Minute 9:  480:85, 510:90  (tomcat warm up 3rd minute)
      - Minute 10: 540:95, 600:100  (eventually errors should stop occuring since we are all spun up)  
 - I would EXPECT to get 502 as soon as the new servers are provisioned, around minute 6.  As soon as the container is started Apache is started, but Tomcat is still warming up.  Azure added the new servers to the load balancer since port 80 (Apache) started accepting traffic.
 
@@ -168,6 +156,17 @@ Data:
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-throughput-20-minutes.png)
 
 The reason I ran a 20 minute test is because the 10 minute test never showed the errors leveling off.  The 20 minute chart show no more errors after about minute 14.  The chart levels off, meaning no more new errors.  This proves that the servers did evenually start, but leaves me thinking it took about 13 minutes for all 10 servers to be available (something else for me to look into... why so long...).
+
+## Notes
+1. If you want to be able to SSH to your containers please see:  https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image.
+2. You can reduce the layer by getting rid of a lot of the RUN command and combining with the & character.  I like my code explicit when developing and then condense later, but always keep it readable.
+3. You should put some code in the start-server.sh script to handle interrupts.  Right now when you run the Docker image locally it is hard to kill.  I have to run:
+```
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+```
+4. This project is based upon a discussion I had with a colleague who had similar issues. Please check out his Github for a Wildfly example: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
+5. Tomcat has two flags: antiJARLocking and antiJARLocking.  These do not seem to solve this particular problem through and were attempting as a solution.
 
 
 ## Summary
