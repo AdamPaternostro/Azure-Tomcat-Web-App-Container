@@ -4,6 +4,8 @@ Creates a Docker container with Tomcat installed behind Apache which acts as a r
 ### The problem
 In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web Apps has a shared file system in which your web code is deployed.  This creates a problem when running more than one web server and you deploy a WAR files.  The servers fight over who will get a lock to unzip the WAR file and you get issues. The other issue is that some Tomcat applications take 5+ minutes to warm up.  So you do not want web traffic hitting your site before it is ready to go.  
 
+![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/TomcatOnAzure.png)
+
 ### Image Labels
 I created 1 Docker image and Labeled it 3 different ways
 https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
