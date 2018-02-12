@@ -96,17 +96,39 @@ ENTRYPOINT ["/usr/local/custom-app/start-server.sh"]
 # Build this file:                       docker build -t apachetomcatazure .
 # Start container (locally):             docker run -p 80:80 apachetomcatazure
 
+# For Docker Hub, see Azure Container Registry below
 # To upload:                             docker login
 # Tag:                                   docker tag apachetomcatazure adampaternostro/apachetomcatazure:v1
 # Push:                                  docker push adampaternostro/apachetomcatazure:v1
 # Start container (prod):                docker run -p 80:80 adampaternostro/apachetomcatazure:v1
 
-# Deploy to Azure
+# Deploy to Azure (Using Docker Hub)
+# https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image
 # az group create --name AdamLinuxGroup --location "East US"
 # az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
 # az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adampaternostro/apachetomcatazure:v1
 # az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
-#
+
+# Deploy to Azure (Using ACR)
+########### Run these in Azure Bash Prompt ########### 
+# az group create --name AdamLinux --location "East US"
+# az acr create --name adamlinuxreg --resource-group AdamLinux --sku Basic --admin-enabled true
+# az acr credential show --name adamlinuxreg
+########### Run these on local machine ########### You need to build the Docker image in the good and bad states
+# docker login adamlinuxreg.azurecr.io --username adamlinuxreg
+# docker tag adampaternostro/apachetomcatazure:latest adamlinuxreg.azurecr.io/apachetomcatazure:latest 
+# docker tag adampaternostro/apachetomcatazure:good   adamlinuxreg.azurecr.io/apachetomcatazure:good
+# docker tag adampaternostro/apachetomcatazure:bad    adamlinuxreg.azurecr.io/apachetomcatazure:bad
+# docker push adamlinuxreg.azurecr.io/apachetomcatazure:latest 
+# docker push adamlinuxreg.azurecr.io/apachetomcatazure:good 
+# docker push adamlinuxreg.azurecr.io/apachetomcatazure:bad 
+########### Run these in Azure Bash Prompt ########### 
+# az acr repository list -n adamlinuxreg
+# az group create --name AdamLinuxGroup --location "East US"
+# az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
+# az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adamlinuxreg.azurecr.io/apachetomcatazure:good
+# az webapp config container set --name AdamLinuxWebApp --resource-group AdamLinuxGroup --docker-custom-image-name adamlinuxreg.azurecr.io/apachetomcatazure:good --docker-registry-server-url https://adamlinuxreg.azurecr.io --docker-registry-server-user adamlinuxreg --docker-registry-server-password ERD2fKXK813RtPWSBePz+v/mllpFVs+W
+# az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
 
 
 # To debug the container (commment out the ENTRYPOINT and run any of the below)
