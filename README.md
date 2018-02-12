@@ -4,6 +4,13 @@ Creates a Docker container with Tomcat installed behind Apache which acts as a r
 ### The problem
 In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web Apps has a shared file system in which your web code is deployed.  This creates a problem when running more than one web server and you deploy a WAR files.  The servers fight over who will get a lock to unzip the WAR file and you get issues. The other issue is that some Tomcat applications take 5+ minutes to warm up.  So you do not want web traffic hitting your site before it is ready to go.  
 
+### I have one image with 3 labels for testing
+There are 3 images:
+1. latest -> this is what you would do in production
+2. good -> this tests to ensure that the web node is not added to the Azure load balancer until Apache starts
+3. bad -> this simulates the problem I am trying to solve.  Tomcat not ready for action, but added to the load balancer.
+https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
+
 
 ### To build the Docker image
 1. Download this repository
@@ -12,29 +19,54 @@ In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web A
 4. Replace your the WAR (sample.war) with your own and update the Dockerfile
 ```COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war```
 5. Change the password in the tomcat-users.xml
-6. Run these in your directory (change to your image name and Docker repo / Azure Container Registry)
+
+
+### To build the good and bad images
+1. To build the "good" image replace the "start-server.sh" contents with "start-server-good.sh".  Follow the same steps below, but label this image "good".
+2. To build the "bad" image replace the "start-server.sh" contents with "start-server-bad.sh".  Follow the same steps below, but label this image "bad".
+
+
+### To use Docker Hub with Azure
+Run this on your machine (same directory as your downloaded this repo)
 ```
 docker build -t apachetomcatazure .
 docker login
-docker tag apachetomcatazure adampaternostro/apachetomcatazure:v1
-docker push adampaternostro/apachetomcatazure:v1
+docker tag apachetomcatazure adampaternostro/apachetomcatazure:latest
+docker push adampaternostro/apachetomcatazure:latest
 ```
-
-
-### Deploy to Azure
-Run this in the Azure portal (create a Bash prompt). Replace "Adam" with your name.
-You need to deploy either the good or bad image to Azure.  
-There are 3 images:
-1. latest -> this is what you would do in production
-2. good -> this tests to ensure that the web node is not added to the Azure load balancer until Apache starts
-3. bad -> this simulates the problem I am trying to solve.  Tomcat not ready for action, but added to the load balancer.
-https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
+Run this in an Azure Portal Bash prompt.  Replace "Adam" with your name.
 ```
 az group create --name AdamLinuxGroup --location "East US"
 az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
 az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adampaternostro/apachetomcatazure:{good OR bad}
 az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
 ```
+
+
+### To use Azure Container Registry
+Run this in an Azure Portal Bash prompt.  Replace "Adam" with your name.
+```
+az group create --name AdamLinux --location "East US"
+az acr create --name adamlinuxreg --resource-group AdamLinux --sku Basic --admin-enabled true
+az acr credential show --name adamlinuxreg
+```
+Copy the Password that is displayed!
+Run this on your machine (same directory as your downloaded this repo)
+```
+docker login adamlinuxreg.azurecr.io --username adamlinuxreg
+docker tag adampaternostro/apachetomcatazure:latest adamlinuxreg.azurecr.io/apachetomcatazure:latest 
+docker push adamlinuxreg.azurecr.io/apachetomcatazure:latest 
+az acr repository list -n adamlinuxreg
+```
+Run this in an Azure Bash Prompt
+```
+az group create --name AdamLinuxGroup --location "East US"
+az appservice plan create --name AdamAppServicePlan --resource-group AdamLinuxGroup --sku S1 --is-linux
+az webapp create --resource-group AdamLinuxGroup --plan AdamAppServicePlan --name AdamLinuxWebApp --deployment-container-image-name adamlinuxreg.azurecr.io/apachetomcatazure:good
+az webapp config container set --name AdamLinuxWebApp --resource-group AdamLinuxGroup --docker-custom-image-name adamlinuxreg.azurecr.io/apachetomcatazure:good --docker-registry-server-url https://adamlinuxreg.azurecr.io --docker-registry-server-user adamlinuxreg --docker-registry-server-password <<<<PASSWORD>>>>
+az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinuxWebApp --settings WEBSITES_PORT=80
+```
+
 
 ## Notes
 1. I need to implement SSH (see: https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image)
