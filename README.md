@@ -32,7 +32,9 @@ https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
 2. Download http://mirrors.advancedhosters.com/apache/tomcat/tomcat-9/v9.0.4/bin/apache-tomcat-9.0.4.tar.gz
 3. Download http://download.oracle.com/otn-pub/java/jdk/9.0.4+11/c2514751926b4512b076cc82f959763f/jdk-9.0.4_linux-x64_bin.tar.gz
 4. Replace your the WAR (sample.war) with your own and update the Dockerfile
-```COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war```
+```
+COPY sample.war /usr/local/apache-tomcat-9.0.4/webapps/sample.war
+```
 5. Change the password in the tomcat-users.xml
 
 
@@ -86,6 +88,11 @@ az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinu
 ## Notes
 1. I need to implement SSH (see: https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image)
 2. It would be nice to reduce this image size (you can reduce the layer by getting rid of a lot of the RUN command and combining with the & character.  I like my code explicit when developing and then condense what makes sense and keeps it readable.
+3. You should put some code in the start-server.sh script to handle interrupts.  Right now when you run the Docker image locally it is hard to kill.  I have to run:
+```
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+```
 
 This project is based upon a discussion I had with a colleague who had similar issues. He deserves credit and hit github can be found here: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
 
