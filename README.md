@@ -9,13 +9,13 @@ In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web A
 
 
 ### The solution
-1. Use Web Apps on Linux using a Docker container for your Tomcat App
-2. Start Tomcat on port 8080.
-3. Tomcat can now unzip your WAR file since each container has its very own WAR file (no locking)
-4. Start sending requests to Tomcat on port 8080 to warm-up your application
-5. When your application is ready start Apache on port 80
-6. Apache is acting as a reverse proxy to Tomcat (some people do not like Tomcat exposed directly anyway for security reasons).
-7. Azure sees port 80 is ready to go, so Azure adds this instance to the Wep App load balancer. 
+- Use Azure Web Apps on Linux (this will deploy your custom image)
+- Create a a Docker image: 
+  - Start Tomcat on port 8080.
+  - Tomcat can now unzip your WAR file since each container has its very own WAR file (no locking) .   
+  - Inside your Docker image:  Warm up Tomcat on port 8080 by hitting your site within the container
+  - Inside your Docker image: Start Apache on port 80 when Tomcat is ready.  Apache is acting as a reverse proxy to Tomcat (some people do not like Tomcat exposed directly anyway for security reasons).
+- Azure sees port 80 is ready to go, so Azure adds this instance to the Wep App load balancer. 
 
 
 ### Image Labels
