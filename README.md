@@ -110,16 +110,16 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
 - It should take about 4 minutes for the new instances
    - We do not want any 502 errors during this time
    - We will have 40 users at 4 minutes which is fine for 1 server to handle 
-     Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
-     Minute 2:  060:15, 090:20,  (tomcat warm up 1st minute)
-     Minute 3:  120:25, 150:30,  (tomcat warm up 2nd minute) 
-     Minute 4:  180:35, 210:40,  (tomcat warm up 3rd minute)
-     Minute 5:  240:45, 270:50,  (traffic should now be on all 10 servers)
-     Minute 6:  300:55, 330:60, 
-     Minute 7:  360:65, 390:70, 
-     Minute 8:  420:75, 450:80, 
-     Minute 9:  480:85, 510:90,
-     Minute 10: 540:95, 600:100
+     - Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
+     - Minute 2:  060:15, 090:20,  (tomcat warm up 1st minute)
+     - Minute 3:  120:25, 150:30,  (tomcat warm up 2nd minute) 
+     - Minute 4:  180:35, 210:40,  (tomcat warm up 3rd minute)
+     - Minute 5:  240:45, 270:50,  (traffic should now be on all 10 servers)
+     - Minute 6:  300:55, 330:60, 
+     - Minute 7:  360:65, 390:70, 
+     - Minute 8:  420:75, 450:80, 
+     - Minute 9:  480:85, 510:90,
+     - Minute 10: 540:95, 600:100
      
 - I would NOT expect to get 502 errors during the scaling process (minutes 2, 3 and 4)
 
@@ -140,18 +140,18 @@ Good Test (3 minutes simulated delay for Tomcat to warmup)
 - It should take about 4 minutes for the new instances
    - We do not want any 502 errors during this time
    - We will have 40 users at 4 minutes which is fine for 1 server to handle 
-     Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
-     Minute 2:  060:15, 090:20,  (traffic should now be on all 10 servers) 
-                                 (tomcat warm up 1st minute)
-     Minute 3:  120:25, 150:30,  (tomcat warm up 2nd minute) 
-                                 (I would expect to start getting 502 errors around now)
-     Minute 4:  180:35, 210:40,  (tomcat warm up 3rd minute)
-     Minute 5:  240:45, 270:50,  
-     Minute 6:  300:55, 330:60,  (I started getting 502 errors... did it take this long to deploy my image?)
-     Minute 7:  360:65, 390:70, 
-     Minute 8:  420:75, 450:80, 
-     Minute 9:  480:85, 510:90,
-     Minute 10: 540:95, 600:100
+     - Minute 1:  000:05, 030:10,  (scale to 10 instances at the end of minute 1)
+     - Minute 2:  060:15, 090:20,  (traffic should now be on all 10 servers) 
+                                   (tomcat warm up 1st minute)
+     - Minute 3:  120:25, 150:30,  (tomcat warm up 2nd minute) 
+                                   (I would expect to start getting 502 errors around now)
+     - Minute 4:  180:35, 210:40,  (tomcat warm up 3rd minute)
+     - Minute 5:  240:45, 270:50,  
+     - Minute 6:  300:55, 330:60,  (I started getting 502 errors... did it take this long to deploy my image?)
+     - Minute 7:  360:65, 390:70, 
+     - Minute 8:  420:75, 450:80, 
+     - Minute 9:  480:85, 510:90,
+     - Minute 10: 540:95, 600:100
      
 - I would expect to get 502 errors around minute 2 to 3.  Instead I got them at minute 6.  I am currently looking into this.  This means either my hypothesis is wrong or it takes 3 minutes to download my image and allocate a machine.  When I deploy my site to Azure it does take around 3 minutes before I can hit the URL.  I am looking into this. As of right now I am thinking this is related to the fact that I am using Docker Hub for my images and pulling them (9 of them) during my scaling is a bottleneck.
 
