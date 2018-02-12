@@ -167,7 +167,7 @@ Data:
 #### 20 Minute Test
 ![alt tag](https://raw.githubusercontent.com/AdamPaternostro/Azure-Tomcat-Web-App-Container/master/images/bad-throughput-20-minutes.png)
 
-The reason I ran a 20 minute test is because the 10 minute test never showed the errors leveling off.  The 20 minute chart show no more errors after about minute 14 (the chart becomes level, meaning we are not longer getting additional errors).  This seems to prove the issue with Tomcat accepting traffic before being ready.
+The reason I ran a 20 minute test is because the 10 minute test never showed the errors leveling off.  The 20 minute chart show no more errors after about minute 14.  The chart levels off, meaning no more new errors.  This proves that the servers did evenually start, but leaves me thinking it took about 13 minutes for all 10 servers to be available (something else for me to look into... why so long...).
 
 
 ## Summary
