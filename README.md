@@ -162,6 +162,7 @@ docker rm $(docker ps -aq)
 4. This project is based upon a discussion I had with a colleague who had similar issues. Please check out his Github for a Wildfly example: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
 5. Tomcat has two flags: antiJARLocking and antiJARLocking.  These do not seem to solve this particular problem through and were attempting as a solution.
 6. If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap.  If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really should be used for any Docker web app deployment.  I would suspect this issue will occur on-prem and other cloud vendors.
+7. Other benefits of this apporach: You are control of your updates with Java/Tomcat.  Your other choice is to pick a specific version in the Azure portal, be careful if you select "latest" since when Azure does updates your site could be affected.
 
 
 ## Summary
