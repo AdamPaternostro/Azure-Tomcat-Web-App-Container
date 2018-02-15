@@ -1,5 +1,5 @@
 # Azure-Tomcat-Web-App-Container
-Creates a Docker container with Tomcat installed behind Apache which acts as a reverse proxy so Tomcat can be warmed up before being added to the Azure load balancer.  Solves the problems of web apps needing time to warm-up as well as locking of WAR files that can occur on Azure Window Web Apps.  This apporach can be used for solving not just Tomcat, but .NET apps, Node.js, etc. so it worth understanding.
+Creates a Docker container with Tomcat installed behind Apache which acts as a reverse proxy so Tomcat can be warmed up before being added to the Azure load balancer.  Solves the problems of web apps needing time to warm-up as well as locking of WAR files that can occur on Azure Window Web Apps.  This approach can be used for solving not just Tomcat, but .NET apps, Node.js, etc. so it worth understanding. Also, this does not just apply to Azure Web Apps, if you are running web servers in a VM Scale Sets, you will encounter the same issue. 
 
 
 ### The problem
@@ -19,7 +19,7 @@ In Azure you can run Web Sites (Web Apps) on Windows.  The architecture of Web A
 
 
 ### The Docker Image labels
-The public repository of my image has 3 labels which are descibed below
+The public repository of my image has 3 labels which are described below
 https://hub.docker.com/r/adampaternostro/apachetomcatazure/tags/
 1. **latest**: This is the code you would use in production.  You need to test and configure this for your needs.
 2. **good**: This simulates a web app that takes 3 minutes to warm up, but does not start Apache until Tomcat is ready.
@@ -88,7 +88,7 @@ az webapp config appsettings set --resource-group AdamLinuxGroup --name AdamLinu
 
 ## Load Testing 
 
-### Backgroud
+### Background
 - For both the "good and "bad" load tests, I waited for the first deployment to be up and running before testing.
 - I tested a single web server to see how many users a single server can handle.  The result was about 100 users before getting overload.  This is important since I ran the below test I started with 1 server and one minute into the test I told Azure to run 10 servers.  It takes Azure about 5 minutes to deploy my new image, so for the first 6 minutes of the test I only have 1 server. Also, my start up script sleeps for 3 minutes (simulating Tomcat warmup) which means for up to minute 9 just 1 server is handling all the traffic.  
 - I ran the load test for 10 minutes and also for 20 minutes.
@@ -137,7 +137,7 @@ Data:
      - Minute 7:  360:65, 390:70   (tomcat warm up 1st minute) 
      - Minute 8:  420:75, 450:80   (tomcat warm up 2nd minute)
      - Minute 9:  480:85, 510:90   (tomcat warm up 3rd minute)
-     - Minute 10: 540:95, 600:100  (eventually errors should stop occuring since we are all spun up)  
+     - Minute 10: 540:95, 600:100  (eventually errors should stop occurring since we are all spun up)  
 - I would EXPECT to get 502 as soon as the new servers are provisioned, around minute 6.  As soon as the container is started Apache is started, but Tomcat is still warming up.  Azure added the new servers to the load balancer since port 80 (Apache) started accepting traffic.
 
 
@@ -162,7 +162,7 @@ docker rm $(docker ps -aq)
 4. This project is based upon a discussion I had with a colleague who had similar issues. Please check out his Github for a Wildfly example: https://github.com/jamarsto/MyWildfly.  I wanted to do this for Tomcat since my customers use this app server and I also wanted to do the load testing of the site.
 5. Tomcat has two flags: antiJARLocking and antiJARLocking.  These do not seem to solve this particular problem through and were attempting as a solution.
 6. If you are using a Windows Web App and need to warm up your website (.NET, Java, etc.) see this: https://docs.microsoft.com/en-us/azure/app-service/web-sites-staged-publishing#custom-warm-up-before-swap.  If you are using Tomcat and the WAR file unzipping process is locking your application then you need to use this reverse proxy approach.  This approach really should be used for any Docker web app deployment.  I would suspect this issue will occur on-prem and other cloud vendors.
-7. Other benefits of this apporach: You are control of your updates with Java/Tomcat.  Your other choice is to pick a specific version in the Azure portal, be careful if you select "latest" since when Azure does updates your site could be affected.
+7. Other benefits of this approach: You are control of your updates with Java/Tomcat.  Your other choice is to pick a specific version in the Azure portal, be careful if you select "latest" since when Azure does updates your site could be affected.
 
 
 ## Summary
