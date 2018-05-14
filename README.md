@@ -1,3 +1,6 @@
+### Update May-2018
+You now can deploy Tomcat to Azure Web Apps and avoid this locking issue.  Please see: https://github.com/AdamPaternostro/Azure-Tomcat-WAR-Deploy.  The below article still applies for best practices.
+
 # Azure-Tomcat-Web-App-Container
 Creates a Docker container with Tomcat installed behind Apache which acts as a reverse proxy so Tomcat can be warmed up before being added to the Azure load balancer.  Solves the problems of web apps needing time to warm-up as well as locking of WAR files that can occur on Azure Window Web Apps.  This approach can be used for solving not just Tomcat, but .NET apps, Node.js, etc. so it worth understanding. Also, this does not just apply to Azure Web Apps, if you are running web servers in a VM Scale Sets, you will encounter the same issue. 
 
